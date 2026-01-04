@@ -3,6 +3,18 @@ def xtime(a : int) -> int:
     new_bits = (a << 1) & 0xFF
 
     if top_bit == 1:
-        new_bits = new_bits ^ 0x1D
+        new_bits ^= 0x1D
     
+    return new_bits
+
+def mul(a : int, b : int) -> int:
+    new_bits = 0
+
+    while b != 0:
+        if b & 1:
+            new_bits ^= a
+        
+        a = xtime(a)
+        b >>= 1
+
     return new_bits
