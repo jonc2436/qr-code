@@ -1,4 +1,4 @@
-from capacities import QR_CAPACITIES
+from .capacities import QR_CAPACITIES
 
 NUMERIC = set("0123456789")
 ALPHANUMERIC = set("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:")
@@ -21,6 +21,6 @@ def encoding_mode(data : str) -> str:
     return output
 
 def get_minimum_size(err_corr : str, enc_mode : str, char_len : int) -> int:
-    for key, values in QR_CAPACITIES.values():
+    for key, values in QR_CAPACITIES.items():
         if values[err_corr][enc_mode] >= char_len:
             return key
