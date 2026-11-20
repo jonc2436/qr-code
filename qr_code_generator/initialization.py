@@ -5,16 +5,10 @@ from .lookup_tables.character_count import QR_CHARACTER_COUNT_BITS
 NUMERIC = set("0123456789")
 ALPHANUMERIC = set("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:")
 
-def isValid_size(size : int) -> bool:
-    return (size >= 1 and size <= 40) 
-
 def isValid_err_corr(err_corr : str) -> bool:
     return (err_corr in set(["L", "M", "Q", "H"]))
 
-def isValid_enc_mode(enc_mode : str) -> bool:
-    return (enc_mode in set(["0001", "0010", "0100", "1000"]))
-
-def encoding_mode(data : str) -> str:
+def get_mode_indicator(data : str) -> str:
     if not data:
         raise ValueError("Empty Input")
 
@@ -31,33 +25,33 @@ def encoding_mode(data : str) -> str:
 
     return output
 
-def get_minimum_size(err_corr : str, enc_mode : str, char_len : int) -> int:
+def get_minimum_size(data : str, err_corr : str) -> int:
     if not isValid_err_corr(err_corr):
         raise ValueError("Error Correction is not valid")
-    if not isValid_enc_mode(enc_mode):
-            raise ValueError("Encoding Mode is not valid")
+
+    char_len = len(data)
+    enc_mode = get_mode_indicator(data)
     
     for key, values in QR_CAPACITIES.items():
         if values[err_corr][enc_mode] >= char_len:
             return key
 
-def get_num_codewords(size : int, err_corr : str) -> int:
-    if not isValid_size(size):
-        raise ValueError("Size is not valid")
-    if not isValid_err_corr(err_corr):
-        raise ValueError("Error Correction is not valid")
+def get_character_count_indicator(data : str, err_corr : str) -> str:
+    enc_mode = get_mode_indicator(data)
+    size = get_minimum_size(data, err_corr)
 
-    return QR_ERROR_CORRECTION[size][err_corr]["total_data_codewords"]
-
-def char_count_size(size : int, enc_mode : str) -> int:
-    if not isValid_size(size):
-        raise ValueError("Size is not valid")
-    if not isValid_enc_mode(enc_mode):
-        raise ValueError("Encoding Mode is not valid")
+    count_bit_len = 0
 
     if size >= 1 and size <= 9:
-        return QR_CHARACTER_COUNT_BITS["1-9"][enc_mode]
+        count_bit_len = QR_CHARACTER_COUNT_BITS["1-9"][enc_mode]
     elif size <= 26:
-        return QR_CHARACTER_COUNT_BITS["10-26"][enc_mode]
+        count_bit_len = QR_CHARACTER_COUNT_BITS["10-26"][enc_mode]
     elif size <= 40:
-        return QR_CHARACTER_COUNT_BITS["27-40"][enc_mode]
+        count_bit_len = QR_CHARACTER_COUNT_BITS["27-40"][enc_mode]
+
+    char_count_indicator = bin(len(data))[2:]
+
+    while len(char_count_indicator) < count_bit_len:
+        char_count_indicator = "0" + char_count_indicator
+
+    return char_count_indicator
