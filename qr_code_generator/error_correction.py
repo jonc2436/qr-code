@@ -1,4 +1,5 @@
 from lookup_tables.error_correction import QR_ERROR_CORRECTION
+from gf_functions import *
 
 def split_blocks(data : str, version : int, err_corr : str) -> dict:
     final_dict = {"block1": [], "block2":  []}
@@ -34,3 +35,20 @@ def split_blocks(data : str, version : int, err_corr : str) -> dict:
             final_dict["block2"].append(block)
     
     return final_dict
+
+def generate_polynomial(version : int, err_corr : str) -> list[int]:
+    codewords_num = QR_ERROR_CORRECTION[version][err_corr]["ec_codewords_per_block"]
+    first_poly = [1, 1]
+
+    for i in range(1, codewords_num):
+        second_poly = [1, antilog[i]]
+        first_poly_len, second_poly_len = len(first_poly), len(second_poly)
+        product = [0]*(first_poly_len + second_poly_len - 1)
+
+        for poly_x in range(first_poly_len):
+            for poly_y in range(second_poly_len):
+                product[poly_x+poly_y] ^= gf_multiply(first_poly[poly_x], second_poly[poly_y])
+
+        first_poly = product
+
+    return product
