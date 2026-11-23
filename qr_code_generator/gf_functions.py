@@ -17,6 +17,9 @@ for exponent in range(255):
         antilog[exponent] = value
 
 def gf_multiply(x : int, y : int) -> int:
+    if x == 0 or y == 0:
+        return 0
+
     return antilog[(log[x] + log[y]) % 255]
 
 def gf_divide(x : int, y : int) -> int:
