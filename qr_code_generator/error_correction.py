@@ -9,20 +9,28 @@ def split_blocks(data : str, version : int, err_corr : str) -> dict:
     if group1_block_count:
         block1_num_codewords = QR_ERROR_CORRECTION[version][err_corr]["group1_data_codewords_per_block"]
 
-        for i in range(group1_block_count):
-            final_dict["block1"].append([])
+        for block_index in range(group1_block_count):
+            block = []
+        
+            for codeword_index in range(block1_num_codewords):
+                left = block_index*block1_num_codewords*8+codeword_index*8
+                right = left + 8
+                block.append(data[left:right])
 
-            for j in range(block1_num_codewords):
-                final_dict["block1"][i].append(data[i*block1_num_codewords*8+j*8:i*block1_num_codewords*8+j*8+8])
+            final_dict["block1"].append(block)
 
     if group2_block_count:
         block2_num_codewords = QR_ERROR_CORRECTION[version][err_corr]["group2_data_codewords_per_block"]
         offset = group1_block_count * block1_num_codewords * 8
 
-        for k in range(group2_block_count):
-            final_dict["block2"].append([])
+        for block_index in range(group2_block_count):
+            block = []
+        
+            for codeword_index in range(block2_num_codewords):
+                left = offset+block_index*block2_num_codewords*8+codeword_index*8
+                right = left + 8
+                block.append(data[left:right])
 
-            for l in range(block2_num_codewords):
-                final_dict["block2"][k].append(data[offset+k*block2_num_codewords*8+l*8:offset+k*block2_num_codewords*8+l*8+8])        
+            final_dict["block2"].append(block)
     
     return final_dict
