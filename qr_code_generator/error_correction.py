@@ -1,5 +1,5 @@
 from lookup_tables.error_correction import QR_ERROR_CORRECTION
-from gf_functions import *
+from gf_functions import antilog, gf_multiply
 
 def split_blocks(data : str, version : int, err_corr : str) -> dict:
     final_dict = {"block1": [], "block2":  []}
@@ -52,3 +52,27 @@ def generate_polynomial(version : int, err_corr : str) -> list[int]:
         first_poly = product
 
     return product
+
+def polynomial_division(msg_poly : list[int], gen_poly : list[int], num_codewords : int) -> list[int]:    
+    temp_msg = msg_poly.copy()
+    temp_msg.extend([0]*num_codewords)
+
+    for step in range(len(msg_poly)):
+        lead_term = temp_msg[0]
+        temp_gen = gen_poly.copy()
+        temp_gen.extend([0]*(len(temp_msg)-len(temp_gen)))
+
+        print(f'Lead Term: {lead_term}, msg_poly: {temp_msg}, gen_poly: {temp_gen}')
+
+        for i in range(len(temp_gen)):
+            temp_gen[i] = gf_multiply(temp_gen[i], lead_term)
+
+        print(f'temp: {temp_gen}')
+
+        for i in range(len(temp_msg)):
+            temp_msg[i] ^= temp_gen[i]
+            print(temp_msg[i])
+
+        del temp_msg[0]
+
+    return temp_msg
